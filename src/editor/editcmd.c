@@ -2848,27 +2848,16 @@ edit_complete_word_cmd (WEdit * edit)
         edit_collect_completions (edit, word_start, word_len, match_expr,
                                   (struct selection *) &compl, &num_compl);
 
-    if (num_compl > 0)
-    {
-        /* insert completed word if there is only one match */
-        if (num_compl == 1)
-        {
-            for (i = word_len; i < compl[0].len; i++)
-                edit_insert (edit, *(compl[0].text + i));
-        }
-        /* more than one possible completion => ask the user */
-        else
-        {
-            /* !!! usually only a beep is expected and when <ALT-TAB> is !!! */
-            /* !!! pressed again the selection dialog pops up, but that  !!! */
-            /* !!! seems to require a further internal state             !!! */
-            /*tty_beep (); */
-
-            /* let the user select the preferred completion */
-            editcmd_dialog_completion_show (edit, max_len, word_len,
-                                            (struct selection *) &compl, num_compl);
-        }
-    }
+    /* insert completed word if there is only one match */
+    if (num_compl == 1)
+        for (i = word_len; i < compl[0].len; i++)
+            edit_insert (edit, *(compl[0].text + i));
+    /* more than one possible completion => ask the user */
+    else if (num_compl > 1)
+        /* let the user select the preferred completion */
+        editcmd_dialog_completion_show (edit, max_len, word_len,
+                                        (struct selection *) &compl,
+                                        num_compl);
 
     g_free (match_expr);
     /* release memory before return */
@@ -2931,8 +2920,7 @@ edit_execute_macro_cmd (WEdit * edit)
 void
 edit_begin_end_macro_cmd (WEdit * edit)
 {
-    /* edit is a pointer to the widget */
-    if (edit)
+    if (edit != NULL)
     {
         unsigned long command = edit->macro_i < 0 ? CK_Begin_Record_Macro : CK_End_Record_Macro;
         edit_execute_key_command (edit, command, -1);

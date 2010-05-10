@@ -364,18 +364,12 @@ editcmd_dialog_completion_show (WEdit * edit, int max_len, int word_len,
     int compl_dlg_w;            /* completion dialog width */
 
     /* calculate the dialog metrics */
-    compl_dlg_h = num_compl + 2;
-    compl_dlg_w = max_len + 4;
-    start_x = edit->curs_col + edit->start_col - (compl_dlg_w / 2) +
-        EDIT_TEXT_HORIZONTAL_OFFSET + option_line_state_width;
-    start_y = edit->curs_row + EDIT_TEXT_VERTICAL_OFFSET + 1;
+    compl_dlg_h = min (LINES - 2, num_compl + 2);
+    compl_dlg_w = min (COLS, max_len + 4);
 
-    if (start_x < 0)
-        start_x = 0;
-    if (compl_dlg_w > COLS)
-        compl_dlg_w = COLS;
-    if (compl_dlg_h > LINES - 2)
-        compl_dlg_h = LINES - 2;
+    start_x = max (0, edit->curs_col + edit->start_col - (compl_dlg_w / 2) +
+                   EDIT_TEXT_HORIZONTAL_OFFSET + option_line_state_width);
+    start_y = edit->curs_row + EDIT_TEXT_VERTICAL_OFFSET + 1;
 
     offset = start_x + compl_dlg_w - COLS;
     if (offset > 0)
