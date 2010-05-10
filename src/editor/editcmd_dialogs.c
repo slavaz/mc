@@ -311,22 +311,39 @@ editcmd_dialog_search_show (WEdit * edit, char **search_text)
 int
 editcmd_dialog_raw_key_query (const char *heading, const char *query, int cancel)
 {
-    int w = str_term_width1 (query) + 7;
-    struct Dlg_head *raw_dlg =
-        create_dlg (0, 0, 7, w, dialog_colors, editcmd_dialog_raw_key_query_cb,
-                    NULL, heading, DLG_CENTER | DLG_TRYUP | DLG_WANT_TAB);
-    add_widget (raw_dlg,
-                input_new (3 - cancel, w - 5, INPUT_COLOR, 2, "", 0, INPUT_COMPLETE_DEFAULT));
-    add_widget (raw_dlg, label_new (3 - cancel, 2, query));
-    if (cancel)
-        add_widget (raw_dlg, button_new (4, w / 2 - 5, B_CANCEL, NORMAL_BUTTON, _("Cancel"), 0));
-    w = run_dlg (raw_dlg);
-    destroy_dlg (raw_dlg);
+    int h = cancel ? 8 : 7;
+    int w;
+    Dlg_head *raw_dlg;
+    const char *b = N_("Cancel");
+    int b_len = 0;
+
+    w = str_term_width1 (heading) + 2;
+    w = max (w, str_term_width1 (query) + 7);
+
     if (cancel)
     {
-        if (w == XCTRL ('g') || w == XCTRL ('c') || w == ESC_CHAR || w == B_CANCEL)
-            return 0;
+#ifdef ENABLE_NLS
+        b = _(b);
+#endif
+        b_len = str_term_width1 (b) + 4;
+        w = max (w, b_len + 4);
     }
+
+    raw_dlg =
+        create_dlg (0, 0, h, w, dialog_colors, editcmd_dialog_raw_key_query_cb,
+                    NULL, heading, DLG_CENTER | DLG_TRYUP | DLG_WANT_TAB);
+
+    add_widget (raw_dlg,
+                input_new (3, w - 5, INPUT_COLOR, 2, "", 0, INPUT_COMPLETE_DEFAULT));
+    add_widget (raw_dlg, label_new (3, 2, query));
+    if (cancel)
+        add_widget (raw_dlg, button_new (5, w/2 - b_len/2, B_CANCEL, NORMAL_BUTTON, b, NULL));
+
+    w = run_dlg (raw_dlg);
+    destroy_dlg (raw_dlg);
+
+    if (cancel && (w == XCTRL ('g') || w == XCTRL ('c') || w == ESC_CHAR || w == B_CANCEL))
+        w = 0;
 
     return w;
 }

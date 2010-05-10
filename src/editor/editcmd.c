@@ -804,7 +804,7 @@ edit_save_macro_cmd (WEdit * edit, struct macro macro[], int n)
     int s, i;
 
     edit_push_action (edit, KEY_PRESS + edit->start_display);
-    s = editcmd_dialog_raw_key_query (_(" Save macro "), _(" Press the macro's new hotkey: "), 1);
+    s = editcmd_dialog_raw_key_query (_(" Save macro "), _(" Press the macro's new hotkey: "), TRUE);
     edit->force |= REDRAW_COMPLETELY;
     if (s)
     {
@@ -836,7 +836,7 @@ edit_delete_macro_cmd (WEdit * edit)
 {
     int command;
 
-    command = editcmd_dialog_raw_key_query (_(" Delete macro "), _(" Press macro hotkey: "), 1);
+    command = editcmd_dialog_raw_key_query (_(" Delete macro "), _(" Press macro hotkey: "), TRUE);
 
     if (command != 0)
         edit_delete_macro (edit, command);
@@ -2912,7 +2912,7 @@ void
 edit_insert_literal_cmd (WEdit * edit)
 {
     int char_for_insertion = editcmd_dialog_raw_key_query (_(" Insert Literal "),
-                                                           _(" Press any key: "), 0);
+                                                           _(" Press any key: "), FALSE);
     edit_execute_key_command (edit, -1, ascii_alpha_to_cntrl (char_for_insertion));
 }
 
@@ -2921,7 +2921,7 @@ edit_execute_macro_cmd (WEdit * edit)
 {
     int command =
         CK_Macro (editcmd_dialog_raw_key_query (_(" Execute Macro "), _(" Press macro hotkey: "),
-                                                1));
+                                                TRUE));
     if (command == CK_Macro (0))
         command = CK_Insert_Char;
 
