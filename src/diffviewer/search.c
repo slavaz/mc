@@ -137,7 +137,7 @@ mcdiffview_dialog_search (WDiff * dview)
     QuickDialog search_input = {
         SEARCH_DLG_WIDTH, SEARCH_DLG_HEIGHT, -1, 0,
         N_("Search"), "[Input Line Keys]",
-        search_widgets, 0
+        search_widgets, NULL, FALSE
     };
 
     mcdiffview_dialog_fix_buttons_positions (&search_input);

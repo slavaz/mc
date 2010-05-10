@@ -371,11 +371,11 @@ quick_dialog_skip (QuickDialog *qd, int nskip)
 
     if ((qd->xpos == -1) || (qd->ypos == -1))
 	dd = create_dlg (0, 0, qd->ylen, qd->xlen,
-			    dialog_colors, NULL, qd->help, qd->title,
+			    dialog_colors, qd->callback, qd->help, qd->title,
 			    DLG_CENTER | DLG_TRYUP | DLG_REVERSE);
     else
 	dd = create_dlg (qd->ypos, qd->xpos, qd->ylen, qd->xlen,
-			    dialog_colors, NULL, qd->help, qd->title,
+			    dialog_colors, qd->callback, qd->help, qd->title,
 			    DLG_REVERSE);
 
     for (qw = qd->widgets; qw->widget_type != quick_end; qw++) {
@@ -432,6 +432,13 @@ quick_dialog_skip (QuickDialog *qd, int nskip)
 	    g_strfreev (items);
 	    break;
 	}
+
+	case quick_groupbox:
+	    qw->widget = (Widget *) groupbox_new (ypos, xpos,
+						    qw->u.groupbox.height,
+						    qw->u.groupbox.width,
+						    I18N (qw->u.groupbox.title));
+	    break;
 
 	default:
 	    qw->widget = NULL;
@@ -556,7 +563,7 @@ fg_input_dialog_help (const char *header, const char *text, const char *help,
 	QuickDialog Quick_input =
 	{
 	    len, lines + 6, -1, -1, header,
-	    help, quick_widgets, TRUE
+	    help, quick_widgets, NULL, TRUE
 	};
 
 	for (i = 0; i < 4; i++) {
