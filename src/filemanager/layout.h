@@ -34,10 +34,12 @@ extern int horizontal_split;
 extern int nice_rotating_dash;
 
 /*** declarations of public functions ************************************************************/
-
 void layout_change (void);
 void layout_box (void);
 void setup_panels (void);
+void panels_split_equal (void);
+void panels_split_more (void);
+void panels_split_less (void);
 void destroy_panels (void);
 void sigwinch_handler (int dummy);
 void change_screen_size (void);
