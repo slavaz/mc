@@ -117,6 +117,9 @@ static const struct
 #ifdef ENABLE_VFS_FTP
     { "ftp://", 6, "/#ftp:" },
 #endif
+#ifdef ENABLE_VFS_SFTP
+    { "sftp://", 6, "/#sftp:" },
+#endif
 #ifdef ENABLE_VFS_FISH
     { "sh://", 5, "/#sh:" },
     { "ssh://", 6, "/#sh:" },
@@ -1292,11 +1295,13 @@ mc_chdir (const char *path)
 
     new_dir = vfs_canon (path);
     trans_dir = vfs_translate_path_n (new_dir);
+    mc_log ("trans_dir: [%s]\n", trans_dir);
     if (trans_dir != NULL)
     {
         new_vfs = vfs_get_class (trans_dir);
         if (!new_vfs->chdir)
         {
+            mc_log ("new_vfs->chdir NULL\n");
             g_free (new_dir);
             g_free (trans_dir);
             return -1;
@@ -1306,6 +1311,7 @@ mc_chdir (const char *path)
 
         if (result == -1)
         {
+            mc_log ("result == -1\n");
             errno = ferrno (new_vfs);
             g_free (new_dir);
             g_free (trans_dir);
@@ -1485,6 +1491,7 @@ vfs_fill_names (fill_names_f func)
 
         if (vfs->fill_names != NULL)
             vfs->fill_names (vfs, func);
+        mc_log ("i: %i\n", i);
     }
 }
 

@@ -2604,6 +2604,7 @@ _do_panel_cd (WPanel * panel, const char *new_dir, enum cd_enum cd_type)
     char temp[MC_MAXPATHLEN];
     char *translated_url;
 
+    mc_log ("_do_panel_cd\n");
     if (cd_type == cd_parse_command)
     {
         while (*new_dir == ' ')
@@ -2624,7 +2625,7 @@ _do_panel_cd (WPanel * panel, const char *new_dir, enum cd_enum cd_type)
         }
     }
     directory = *new_dir ? new_dir : mc_config_get_home_dir ();
-
+    mc_log ("directory = [%s]\n", directory);
     if (mc_chdir (directory) == -1)
     {
         strcpy (panel->cwd, olddir);
@@ -2639,17 +2640,20 @@ _do_panel_cd (WPanel * panel, const char *new_dir, enum cd_enum cd_type)
     input_free_completions (cmdline);
 
     mc_get_current_wd (panel->cwd, sizeof (panel->cwd) - 2);
-
+    mc_log ("mc_get_current_wd\n");
     vfs_release_path (olddir);
+    mc_log ("vfs_release_path\n");
 
     subshell_chdir (panel->cwd);
 
     /* Reload current panel */
     panel_clean_dir (panel);
+    mc_log ("panel_clean_dir\n");
     panel->count =
         do_load_dir (panel->cwd, &panel->dir, panel->sort_info.sort_field->sort_routine,
                      panel->sort_info.reverse, panel->sort_info.case_sensitive,
                      panel->sort_info.exec_first, panel->filter);
+    mc_log ("do_load_dir\n");
     try_to_select (panel, get_parent_dir_name (panel->cwd, olddir));
     load_hint (0);
     panel->dirty = 1;
