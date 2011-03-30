@@ -2744,7 +2744,6 @@ _do_panel_cd (WPanel * panel, const char *new_dir, enum cd_enum cd_type)
     input_free_completions (cmdline);
 
     mc_get_current_wd (panel->cwd, sizeof (panel->cwd) - 2);
-
     vfs_release_path (olddir);
 
     subshell_chdir (panel->cwd);
