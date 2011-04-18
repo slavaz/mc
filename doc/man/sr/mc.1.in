@@ -2607,6 +2607,9 @@ if the
 .I fish
 (за рад са датотекама преко повезивања љуске, као што су `rsh' и
 `ssh') и, коначно,
+.I sftpfs
+(for manipulating files over SFTP connections).
+If the code was compiled with
 .I mcfs
 (систем датотека Поноћног наредника), систем датотека који је заснован
 на мрежи. Уколико је код преведен са подршком за
@@ -2733,6 +2736,58 @@ if the
     sh://joe@hocu.komprimovanje.edu:C/private
     sh://joe@nekomprimovan.ssh.edu/private
 .fi
+.\"NODE "  SFTP (SSH File Transfer Protocol) filesystem "
+.SH "  SFTP (SSH File Transfer Protocol) filesystem"
+The SFTP file system is a network based file system that allows you to
+manipulate the files in a remote machine as if they were local.
+.PP
+To connect to a remote machine, you just need to chdir
+into a special directory which name is in the following
+format:
+.PP
+.I sftp://[user@]machine:[port]/[remote\-dir]
+.PP
+The
+.I user,
+.I port
+and
+.I remote\-dir
+elements are optional.  If you specify the
+.I user
+element, the Midnight Commander will try to login on the remote
+machine as that user, otherwise it will use your login name.
+.I port
+\- specify the port used by remote server (22 by default).
+If the
+.I remote\-dir
+element is present, your current directory on the remote machine will be
+set to this one.
+.PP
+Examples:
+.PP
+.nf
+    sftp://onlyrsh.mx/linux/local
+    sftp://joe:password@want.compression.edu/private
+    sftp://joe@noncompressed.ssh.edu/private
+    sftp://joe@somehost.ssh.edu:2222/private
+.fi
+.\"NODE "  SFTP Configuration dialog "
+.SH "  SFTP Configuration dialog"
+This dialog is intended to enter and adjust information of SFTP server.
+Here you may assign following parameters:
+.I session name
+small description of SFTP server
+.I host
+hostname or IP address of SFTP server
+.I port
+port used by remote server
+.I user name
+element, the Midnight Commander will try to login on the remote
+machine as that user, otherwise it will use your login name.
+.I auth method
+authentication method of SFTP server (password, public keys, ssh-agent).
+.I SSH private key
+path to private key.
 .\"NODE "  Undelete File System"
 .SH "  Систем датотека за одбрисање"
 На ГНУ\-овим системима, уколико сте од програма `configure' захтевали
