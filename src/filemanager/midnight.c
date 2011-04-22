@@ -329,6 +329,25 @@ create_options_menu (void)
 #ifdef ENABLE_VFS
     entries = g_list_append (entries, menu_entry_create (_("&Virtual FS..."), CK_OptionsVfs));
 #endif
+
+    {
+        /* get list of vfs-plugins, who need call to configuration dialog */
+        GList *config_plugins = NULL;
+
+        mc_event_raise ("vfs", "plugin_name_for_config_dialog", (gpointer) & config_plugins);
+        if (config_plugins != NULL)
+        {
+            GList *i;
+
+            entries = g_list_append (entries, menu_separator_create ());
+            for (i = config_plugins; i != NULL; i = g_list_next (i))
+                entries =
+                    g_list_append (entries,
+                                   menu_entry_create_event ((const char *) i->data, "vfs",
+                                                            "plugin_show_config_dialog", i->data));
+            g_list_free (config_plugins);
+        }
+    }
     entries = g_list_append (entries, menu_separator_create ());
     entries = g_list_append (entries, menu_entry_create (_("&Save setup"), CK_SaveSetup));
 

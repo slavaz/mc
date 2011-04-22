@@ -55,6 +55,7 @@
 #include "lib/vfs/utilvfs.h"
 #include "lib/vfs/xdirentry.h"
 #include "lib/vfs/gc.h"         /* vfs_stamp_create */
+#include "lib/event.h"
 
 #include "sftpfs.h"
 #include "dialogs.h"
@@ -116,6 +117,8 @@ typedef struct
 
 
 static struct vfs_class vfs_sftpfs_ops;
+
+static const char *vfs_my_name = "sftpfs";
 
 /*** file scope variables ************************************************************************/
 
@@ -828,6 +831,7 @@ sftpfs_plugin_show_config_dialog (const gchar * event_group_name, const gchar * 
         return TRUE;
 
     configure_sftpfs ();
+
     return FALSE;
 }
 
@@ -1260,7 +1264,7 @@ init_sftpfs (void)
 
     vfs_s_init_class (&vfs_sftpfs_ops, &sftpfs_subclass);
 
-    vfs_sftpfs_ops.name = "sftpfs";
+    vfs_sftpfs_ops.name = vfs_my_name;
     vfs_sftpfs_ops.prefix = "sftp:";
     vfs_sftpfs_ops.flags = VFSF_NOLINKS;
     vfs_sftpfs_ops.init = sftpfs_init;
@@ -1291,6 +1295,9 @@ init_sftpfs (void)
     vfs_sftpfs_ops.rmdir = sftpfs_rmdir;
     vfs_register_class (&vfs_sftpfs_ops);
 
+    mc_event_add ("vfs", "plugin_name_for_config_dialog", sftpfs_plugin_name_for_config_dialog,
+                  NULL, NULL);
+    mc_event_add ("vfs", "plugin_show_config_dialog", sftpfs_plugin_show_config_dialog, NULL, NULL);
 }
 
 /* --------------------------------------------------------------------------------------------- */
