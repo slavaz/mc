@@ -209,7 +209,7 @@ create_panel_menu (void)
     entries = g_list_prepend (entries, menu_entry_create (_("S&hell link..."), CK_ConnectFish));
 #endif
 #ifdef ENABLE_VFS_SFTP
-    entries = g_list_append (entries, menu_entry_create (_("S&FTP link..."), CK_ConnectSftp));
+    entries = g_list_prepend (entries, menu_entry_create (_("S&FTP link..."), CK_ConnectSftp));
 #endif
 #ifdef ENABLE_VFS_SMB
     entries = g_list_prepend (entries, menu_entry_create (_("SM&B link..."), CK_ConnectSmb));
