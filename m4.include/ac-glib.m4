@@ -47,6 +47,7 @@ AC_DEFUN([AC_G_MODULE_SUPPORTED], [
     dnl Try to find static libraries for glib and gmodule.
     dnl
     if test x$with_glib_static = xyes; then
+        GLIB_LIBDIR=`pkg-config --variable=libdir glib-2.0`
         new_GLIB_LIBS=
         for i in $GLIB_LIBS; do
             case x$i in
