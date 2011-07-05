@@ -22,13 +22,7 @@ TTY_SRC = \
 
 libmctty_la_SOURCES = $(TTY_SRC) $(TTY_SCREEN_SRC)
 
-libmctty_la_CFLAGS = -I$(top_srcdir)
+libmctty_la_CFLAGS = -I$(top_srcdir) $(GLIB_CFLAGS)
 
-if HAVE_GMODULE
-libmctty_la_CFLAGS += $(GMODULE_CFLAGS)
-else
-libmctty_la_CFLAGS += $(GLIB_CFLAGS)
-
-endif
 libmctty_la_CFLAGS += -DDATADIR=\""$(pkgdatadir)/"\" -DLOCALEDIR=\""$(localedir)"\"
 

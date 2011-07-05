@@ -1,7 +1,7 @@
 AM_CFLAGS = $(GLIB_CFLAGS) -I$(top_srcdir) @CHECK_CFLAGS@ \
 	-DWORKDIR=\"$(abs_builddir)\"
 
-LIBS=@CHECK_LIBS@  $(top_builddir)/lib/libmc.la
+LIBS=@CHECK_LIBS@  $(top_builddir)/lib/libmc.la $(GLIB_LIBS)
 
 TESTS = \
 	config_string

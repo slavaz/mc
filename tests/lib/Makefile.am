@@ -1,7 +1,7 @@
 SUBDIRS = . mcconfig search vfs
 
 AM_CFLAGS = $(GLIB_CFLAGS) -I$(top_srcdir) @CHECK_CFLAGS@
-LIBS=@CHECK_LIBS@  $(top_builddir)/lib/libmc.la
+LIBS=@CHECK_LIBS@  $(top_builddir)/lib/libmc.la $(GLIB_LIBS)
 
 TESTS = \
 	library_independ \
