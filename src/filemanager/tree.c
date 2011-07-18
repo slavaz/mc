@@ -726,9 +726,8 @@ tree_rescan (void *data)
         vfs_path_free (vpath);
         return;
     }
-    vfs_path_free (vpath);
 
-    tree_store_rescan (tree->selected_ptr->name);
+    tree_store_rescan (vpath);
     vpath = vfs_path_from_str (old_dir);
     ret = mc_chdir (vpath);
     vfs_path_free (vpath);
