@@ -75,21 +75,20 @@ struct dirent *mc_readdir_result = NULL;
 /*** file scope functions ************************************************************************/
 /* --------------------------------------------------------------------------------------------- */
 
-static char *
-mc_def_getlocalcopy (const char *filename)
+static vfs_path_t *
+mc_def_getlocalcopy (const vfs_path_t * filename_vpath)
 {
-    vfs_path_t *tmp_vpath;
+    vfs_path_t *tmp_vpath = NULL;
     int fdin, fdout;
     ssize_t i;
     char buffer[8192];
     struct stat mystat;
-    vfs_path_t *vpath = vfs_path_from_str (filename);
 
-    fdin = mc_open (vpath, O_RDONLY | O_LINEAR);
+    fdin = mc_open (filename_vpath, O_RDONLY | O_LINEAR);
     if (fdin == -1)
         return NULL;
 
-    fdout = vfs_mkstemps (&tmp_vpath, "vfs", filename);
+    fdout = vfs_mkstemps (&tmp_vpath, "vfs", vfs_path_get_last_path_str (filename_vpath));
 
     if (fdout == -1)
         goto fail;
@@ -110,19 +109,12 @@ mc_def_getlocalcopy (const char *filename)
         goto fail;
     }
 
-    if (mc_stat (vpath, &mystat) != -1)
+    if (mc_stat (filename_vpath, &mystat) != -1)
         mc_chmod (tmp_vpath, mystat.st_mode);
 
-    vfs_path_free (vpath);
-
-    {
-        char *tmp = vfs_path_to_str (tmp_vpath);
-        vfs_path_free (tmp_vpath);
-        return tmp;
-    }
+    return tmp_vpath;
 
   fail:
-    vfs_path_free (vpath);
     vfs_path_free (tmp_vpath);
     if (fdout != -1)
         close (fdout);
@@ -134,23 +126,24 @@ mc_def_getlocalcopy (const char *filename)
 /* --------------------------------------------------------------------------------------------- */
 
 static int
-mc_def_ungetlocalcopy (struct vfs_class *vfs, const char *filename,
-                       const char *local, int has_changed)
+mc_def_ungetlocalcopy (const vfs_path_t * filename_vpath,
+                       const vfs_path_t * local_vpath, int has_changed)
 {
-    vfs_path_t *vpath = vfs_path_from_str (filename);
     int fdin = -1, fdout = -1;
+    char *local = vfs_path_get_last_path_str (local_vpath);
+
     if (has_changed)
     {
         char buffer[8192];
         ssize_t i;
 
-        if (!vfs->write)
+        if (vfs_path_get_last_path_vfs (filename_vpath)->write == NULL)
             goto failed;
 
         fdin = open (local, O_RDONLY);
         if (fdin == -1)
             goto failed;
-        fdout = mc_open (vpath, O_WRONLY | O_TRUNC);
+        fdout = mc_open (filename_vpath, O_WRONLY | O_TRUNC);
         if (fdout == -1)
             goto failed;
         while ((i = read (fdin, buffer, sizeof (buffer))) > 0)
@@ -172,17 +165,15 @@ mc_def_ungetlocalcopy (struct vfs_class *vfs, const char *filename,
         }
     }
     unlink (local);
-    vfs_path_free (vpath);
     return 0;
 
   failed:
-    message (D_ERROR, _("Changes to file lost"), "%s", filename);
+    message (D_ERROR, _("Changes to file lost"), "%s", vfs_path_get_last_path_str (filename_vpath));
     if (fdout != -1)
         mc_close (fdout);
     if (fdin != -1)
         close (fdin);
     unlink (local);
-    vfs_path_free (vpath);
     return -1;
 }
 
@@ -619,53 +610,49 @@ mc_get_current_wd (char *buffer, size_t size)
 
 /* --------------------------------------------------------------------------------------------- */
 
-char *
-mc_getlocalcopy (const char *pathname)
+vfs_path_t *
+mc_getlocalcopy (const vfs_path_t * pathname_vpath)
 {
-    char *result = NULL;
-    vfs_path_t *vpath;
+    vfs_path_t *result = NULL;
     vfs_path_element_t *path_element;
 
-    vpath = vfs_path_from_str (pathname);
-    if (vpath == NULL)
+    if (pathname_vpath == NULL)
         return NULL;
 
-    path_element = vfs_path_get_by_index (vpath, -1);
+    path_element = vfs_path_get_by_index (pathname_vpath, -1);
 
     if (vfs_path_element_valid (path_element))
     {
         result = path_element->class->getlocalcopy != NULL ?
-            path_element->class->getlocalcopy (vpath) : mc_def_getlocalcopy (pathname);
+            path_element->class->
+            getlocalcopy (pathname_vpath) : mc_def_getlocalcopy (pathname_vpath);
         if (result == NULL)
             errno = vfs_ferrno (path_element->class);
     }
-    vfs_path_free (vpath);
     return result;
 }
 
 /* --------------------------------------------------------------------------------------------- */
 
 int
-mc_ungetlocalcopy (const char *pathname, const char *local, int has_changed)
+mc_ungetlocalcopy (const vfs_path_t * pathname_vpath, const vfs_path_t * local_vpath,
+                   int has_changed)
 {
     int return_value = -1;
-    vfs_path_t *vpath;
     vfs_path_element_t *path_element;
 
-    vpath = vfs_path_from_str (pathname);
-    if (vpath == NULL)
+    if (pathname_vpath == NULL)
         return -1;
 
-    path_element = vfs_path_get_by_index (vpath, -1);
+    path_element = vfs_path_get_by_index (pathname_vpath, -1);
 
     if (vfs_path_element_valid (path_element))
     {
         return_value = path_element->class->ungetlocalcopy != NULL ?
-            path_element->class->ungetlocalcopy (vpath, local,
+            path_element->class->ungetlocalcopy (pathname_vpath, local_vpath,
                                                  has_changed) :
-            mc_def_ungetlocalcopy (path_element->class, path_element->path, local, has_changed);
+            mc_def_ungetlocalcopy (pathname_vpath, local_vpath, has_changed);
     }
-    vfs_path_free (vpath);
     return return_value;
 }
 

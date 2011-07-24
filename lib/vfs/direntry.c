@@ -741,11 +741,11 @@ vfs_s_ferrno (struct vfs_class *me)
  * for remote filesystems.  Archives use standard VFS facilities.
  */
 
-static char *
+static vfs_path_t *
 vfs_s_getlocalcopy (const vfs_path_t * vpath)
 {
     vfs_file_handler_t *fh;
-    char *local = NULL;
+    vfs_path_t *local = NULL;
 
     if (vpath == NULL)
         return NULL;
@@ -757,7 +757,7 @@ vfs_s_getlocalcopy (const vfs_path_t * vpath)
         struct vfs_class *me = vfs_path_get_by_index (vpath, -1)->class;
         if ((MEDATA->flags & VFS_S_USETMP) != 0 && (fh->ino != NULL)
             && (fh->ino->localname != NULL))
-            local = g_strdup (fh->ino->localname);
+            local = vfs_path_from_str_flags (fh->ino->localname, VPF_NO_CANON);
 
         vfs_s_close (fh);
     }
@@ -772,7 +772,7 @@ vfs_s_getlocalcopy (const vfs_path_t * vpath)
  */
 
 static int
-vfs_s_ungetlocalcopy (const vfs_path_t * vpath, const char *local, int has_changed)
+vfs_s_ungetlocalcopy (const vfs_path_t * vpath, const vfs_path_t * local, int has_changed)
 {
     (void) vpath;
     (void) local;
