@@ -48,6 +48,7 @@
 #include "lib/widget.h"
 #include "lib/mcconfig.h"
 
+#include "src/history.h"
 #include "src/keybind-defaults.h"
 #include "src/main.h"           /* home_dir */
 
@@ -359,6 +360,7 @@ edit_file (const char *_file, int line)
     Dlg_head *edit_dlg;
     WEdit *wedit;
     WMenuBar *menubar;
+    char *tmp_fname;
 
     if (!made_directory)
     {
@@ -375,7 +377,21 @@ edit_file (const char *_file, int line)
         g_free (dir);
     }
 
-    wedit = edit_init (NULL, LINES - 2, COLS, _file, line);
+    if (_file == NULL)
+    {
+        tmp_fname = input_expand_dialog (_("Edit file"), _("Enter file name:"),
+                                         MC_HISTORY_EDIT_SAVE_AS, "");
+    }
+    else
+        tmp_fname = g_strdup (_file);
+
+    if (tmp_fname != NULL)
+    {
+        wedit = edit_init (NULL, LINES - 2, COLS, tmp_fname, line);
+        g_free (tmp_fname);
+    }
+    else
+        return 0;
 
     if (wedit == NULL)
         return 0;
