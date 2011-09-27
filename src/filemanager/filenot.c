@@ -54,15 +54,16 @@
 /*** file scope functions ************************************************************************/
 /* --------------------------------------------------------------------------------------------- */
 
-static char *
-get_absolute_name (const char *file)
+static vfs_path_t *
+get_absolute_name (const vfs_path_t * vpath)
 {
-    char dir[MC_MAXPATHLEN];
+    if (vpath == NULL)
+        return NULL;
 
-    if (file[0] == PATH_SEP)
-        return g_strdup (file);
-    mc_get_current_wd (dir, MC_MAXPATHLEN);
-    return concat_dir_and_file (dir, file);
+    if (*(vfs_path_get_by_index (vpath, 0)->path) == PATH_SEP)
+        return vfs_path_clone (vpath);
+
+    return vfs_path_append_vpath_new (vfs_get_raw_current_dir (), vpath);
 }
 
 /* --------------------------------------------------------------------------------------------- */
@@ -123,11 +124,9 @@ my_mkdir_rec (char *s, mode_t mode)
 /* --------------------------------------------------------------------------------------------- */
 
 int
-my_mkdir (const char *s, mode_t mode)
+my_mkdir (const vfs_path_t * s_vpath, mode_t mode)
 {
     int result;
-    char *my_s;
-    vfs_path_t *s_vpath = vfs_path_from_str (s);
 
     result = mc_mkdir (s_vpath, mode);
 
@@ -140,15 +139,15 @@ my_mkdir (const char *s, mode_t mode)
     }
     if (result == 0)
     {
-        my_s = get_absolute_name (s);
+        vfs_path_t *my_s;
+        my_s = get_absolute_name (s_vpath);
 
 #ifdef FIXME
         tree_add_entry (tree, my_s);
 #endif
 
-        g_free (my_s);
+        vfs_path_free (my_s);
     }
-    vfs_path_free (s_vpath);
     return result;
 }
 
@@ -158,8 +157,7 @@ int
 my_rmdir (const char *s)
 {
     int result;
-    char *my_s;
-    vfs_path_t *vpath = vfs_path_from_str (s);
+    vfs_path_t *vpath = vfs_path_from_str_flags (s, VPF_NO_CANON);
 #ifdef FIXME
     WTree *tree = 0;
 #endif
@@ -168,13 +166,14 @@ my_rmdir (const char *s)
     result = mc_rmdir (vpath);
     if (result == 0)
     {
-        my_s = get_absolute_name (s);
+        vfs_path_t *my_s;
+        my_s = get_absolute_name (vpath);
 
 #ifdef FIXME
         tree_remove_entry (tree, my_s);
 #endif
 
-        g_free (my_s);
+        vfs_path_free (my_s);
     }
     vfs_path_free (vpath);
     return result;
