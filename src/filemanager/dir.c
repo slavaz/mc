@@ -616,7 +616,7 @@ if_link_is_exe (const char *full_name, const file_entry * file)
 /** If fltr is null, then it is a match */
 
 int
-do_reload_dir (const char *path, dir_list * list, sortfn * sort, int count,
+do_reload_dir (const vfs_path_t * vpath, dir_list * list, sortfn * sort, int count,
                gboolean lc_reverse, gboolean lc_case_sensitive, gboolean exec_ff, const char *fltr)
 {
     DIR *dirp;
@@ -626,20 +626,18 @@ do_reload_dir (const char *path, dir_list * list, sortfn * sort, int count,
     struct stat st;
     int marked_cnt;
     GHashTable *marked_files;
-    vfs_path_t *vpath;
+    char *tmp_path = vfs_path_to_str (vpath);
 
-
-    vpath = vfs_path_from_str (path);
     dirp = mc_opendir (vpath);
     if (!dirp)
     {
         message (D_ERROR, MSG_ERROR, _("Cannot read directory contents"));
         clean_dir (list, count);
-        vfs_path_free (vpath);
         return set_zero_dir (list) ? 1 : 0;
     }
 
-    tree_store_start_check (path);
+    tree_store_start_check (tmp_path);
+
     marked_files = g_hash_table_new (g_str_hash, g_str_equal);
     alloc_dir_copy (list->size);
     for (marked_cnt = i = 0; i < count; i++)
@@ -661,21 +659,22 @@ do_reload_dir (const char *path, dir_list * list, sortfn * sort, int count,
 
     /* Add ".." except to the root directory. The ".." entry
        (if any) must be the first in the list. */
-    if (!((path[0] == PATH_SEP) && (path[1] == '\0')))
+    if (!((tmp_path[0] == PATH_SEP) && (tmp_path[1] == '\0')))
     {
         if (!set_zero_dir (list))
         {
             clean_dir (list, count);
             clean_dir (&dir_copy, count);
-            vfs_path_free (vpath);
+            g_free (tmp_path);
             return next_free;
         }
 
-        if (get_dotdot_dir_stat (path, &st))
+        if (get_dotdot_dir_stat (tmp_path, &st))
             list->list[next_free].st = st;
 
         next_free++;
     }
+    g_free (tmp_path);
 
     while ((dp = mc_readdir (dirp)))
     {
@@ -697,7 +696,6 @@ do_reload_dir (const char *path, dir_list * list, sortfn * sort, int count,
              */
             tree_store_end_check ();
             g_hash_table_destroy (marked_files);
-            vfs_path_free (vpath);
             return next_free;
         }
 
@@ -737,7 +735,6 @@ do_reload_dir (const char *path, dir_list * list, sortfn * sort, int count,
         do_sort (list, sort, next_free - 1, lc_reverse, lc_case_sensitive, exec_ff);
     }
     clean_dir (&dir_copy, count);
-    vfs_path_free (vpath);
     return next_free;
 }
 
