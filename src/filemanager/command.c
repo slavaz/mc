@@ -81,6 +81,9 @@ WInput *cmdline;
 static gboolean
 examine_cd (const char *_path)
 {
+    typedef enum { copy_sym, subst_var, skip_var } state_t;
+
+    state_t state = copy_sym;
     gboolean result;
     size_t qlen;
     char *path_tilde, *path;
@@ -98,44 +101,97 @@ examine_cd (const char *_path)
     /* Variable expansion */
     for (p = path_tilde, r = q; *p != '\0' && r < q + MC_MAXPATHLEN;)
     {
-        if (*p != '$' || (p[1] == '[' || p[1] == '('))
-            *(r++) = *(p++);
-        else
+        switch (state)
         {
-            const char *t;
+        case copy_sym:
+            if (p[0] == '\\' && p[1] == '$')
+                state = skip_var;
+            else if (*p != '$' || (p[1] == '[' || p[1] == '('))
+                *(r++) = *(p++);
+            else
+                state = subst_var;
+            break;
 
-            p++;
-            if (*p == '{')
+        case subst_var:
             {
+                const char *t;
+
+                /* skip dollar */
                 p++;
-                s = strchr (p, '}');
+
+                if (*p != '{')
+                    s = NULL;
+                else
+                {
+                    p++;
+                    s = strchr (p, '}');
+                }
+                if (s == NULL)
+                    s = strchr (p, PATH_SEP);
+                if (s == NULL)
+                    s = strchr (p, '\0');
+                c = *s;
+                *s = '\0';
+                t = getenv (p);
+                *s = c;
+                if (t == NULL)
+                {
+                    *(r++) = '$';
+                    if (*(p - 1) != '$')
+                        *(r++) = '{';
+                }
+                else
+                {
+                    if (r + strlen (t) < q + MC_MAXPATHLEN)
+                    {
+                        strcpy (r, t);
+                        r = strchr (r, '\0');
+                    }
+                    p = s;
+                    if (*s == '}')
+                        p++;
+                }
+
+                state = copy_sym;
+                break;
             }
-            else
-                s = NULL;
-            if (s == NULL)
-                s = strchr (p, PATH_SEP);
-            if (s == NULL)
-                s = strchr (p, '\0');
-            c = *s;
-            *s = '\0';
-            t = getenv (p);
-            *s = c;
-            if (t == NULL)
+
+        case skip_var:
             {
-                *(r++) = '$';
-                if (*(p - 1) != '$')
-                    *(r++) = '{';
-            }
-            else
-            {
+                const char *t;
+
+                /* skip backslash */
+                p++;
+                /* dollar */
+                *(r++) = *(p++);
+
+                if (*p != '{')
+                    s = NULL;
+                else
+                {
+                    p++;
+                    s = strchr (p, '}');
+                }
+                if (s == NULL)
+                    s = strchr (p, PATH_SEP);
+                else
+                    s++;
+                if (s == NULL)
+                    s = strchr (p, '\0');
+
+                c = *s;
+                *s = '\0';
+                t = p;
                 if (r + strlen (t) < q + MC_MAXPATHLEN)
                 {
                     strcpy (r, t);
                     r = strchr (r, '\0');
                 }
+                *s = c;
                 p = s;
-                if (*s == '}')
-                    p++;
+
+                state = copy_sym;
+                break;
             }
         }
     }
