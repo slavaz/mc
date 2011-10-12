@@ -88,7 +88,7 @@ extern GArray *macros_list;
 int load_prompt (int fd, void *unused);
 #endif
 
-int do_cd (const char *new_dir, enum cd_enum cd_type);
+gboolean do_cd (const char *new_dir, enum cd_enum cd_type);
 void update_xterm_title_path (void);
 
 /*** inline functions ****************************************************************************/
