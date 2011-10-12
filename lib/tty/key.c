@@ -123,6 +123,7 @@ const key_code_name_t key_name_conv_tab[] = {
     {KEY_IC, "insert", N_("Insert key"), "Ins"},
     {KEY_DC, "delete", N_("Delete key"), "Del"},
     {ALT ('\t'), "complete", N_("Completion/M-tab"), "Meta-Tab"},
+    {KEY_BTAB, "backtab", N_("Back Tabulation S-tab"), "Shift-Tab"},
     {KEY_KP_ADD, "kpplus", N_("+ on keypad"), "+"},
     {KEY_KP_SUBTRACT, "kpminus", N_("- on keypad"), "-"},
     {(int) '/', "kpslash", N_("Slash on keypad"), "/"},
@@ -822,6 +823,7 @@ get_modifier (void)
 #endif /* __QNXNTO__ */
 
 #ifdef HAVE_TEXTMODE_X11_SUPPORT
+#if 0   /* FIXME: we no need use X11 for recognize Ctrl, Shift modifiers */
     if (x11_window != 0)
     {
         Window root, child;
@@ -838,6 +840,7 @@ get_modifier (void)
             result |= KEY_M_CTRL;
         return result;
     }
+#endif
 #endif /* HAVE_TEXTMODE_X11_SUPPORT */
 #ifdef __QNXNTO__
 
@@ -961,13 +964,6 @@ correct_key_code (int code)
     /* This is reported to be useful on AIX */
     if (c == KEY_SCANCEL)
         c = '\t';
-
-    /* Convert Shift+Tab and Ctrl+Tab to Back Tab */
-    if ((c == '\t') && (mod & (KEY_M_SHIFT | KEY_M_CTRL)))
-    {
-        c = KEY_BTAB;
-        mod = 0;
-    }
 
     /* F0 is the same as F10 for out purposes */
     if (c == KEY_F (0))
