@@ -45,7 +45,7 @@
 
 /* Configurable: log2 of the buffer size in bytes */
 #ifndef S_EDIT_BUF_SIZE
-#define S_EDIT_BUF_SIZE 16
+#define S_EDIT_BUF_SIZE 3
 #endif
 
 /* Size of the buffer */
@@ -59,7 +59,7 @@
  * This number can be increased for systems with enough physical memory.
  */
 #ifndef MAXBUFF
-#define MAXBUFF 1024
+#define MAXBUFF 991024
 #endif
 
 /* Maximal length of file that can be opened */
