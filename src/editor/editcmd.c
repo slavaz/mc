@@ -432,7 +432,9 @@ edit_get_save_file_as (WEdit * edit)
     {
         char *fname;
 
-        edit->lb = cur_lb;
+        /* Don't change current LB type (possibly autodetected), unless user asked to. */
+        if (cur_lb != LB_ASIS)
+            edit->lb = cur_lb;
         fname = tilde_expand (filename);
         g_free (filename);
         return fname;
@@ -2640,7 +2642,7 @@ edit_paste_from_X_buf_cmd (WEdit * edit)
     /* try use external clipboard utility */
     mc_event_raise (MCEVENT_GROUP_CORE, "clipboard_file_from_ext_clip", NULL);
     tmp = concat_dir_and_file (mc_config_get_cache_path (), EDIT_CLIP_FILE);
-    edit_insert_file (edit, tmp);
+    edit_insert_file (edit, tmp, LB_ASIS);
     g_free (tmp);
 }
 
@@ -2756,7 +2758,7 @@ edit_insert_file_cmd (WEdit * edit)
         }
         else
         {
-            if (edit_insert_file (edit, exp) != 0)
+            if (edit_insert_file (edit, exp, LB_ASIS) != 0)
             {
                 g_free (exp);
                 edit->force |= REDRAW_COMPLETELY;
@@ -2830,7 +2832,7 @@ edit_sort_cmd (WEdit * edit)
     if (edit_block_delete_cmd (edit))
         return 1;
     tmp = concat_dir_and_file (mc_config_get_cache_path (), EDIT_TEMP_FILE);
-    edit_insert_file (edit, tmp);
+    edit_insert_file (edit, tmp, LB_ASIS);
     g_free (tmp);
     return 0;
 }
@@ -2869,7 +2871,7 @@ edit_ext_cmd (WEdit * edit)
 
     edit->force |= REDRAW_COMPLETELY;
     tmp = concat_dir_and_file (mc_config_get_cache_path (), EDIT_TEMP_FILE);
-    edit_insert_file (edit, tmp);
+    edit_insert_file (edit, tmp, LB_ASIS);
     g_free (tmp);
     return 0;
 }
