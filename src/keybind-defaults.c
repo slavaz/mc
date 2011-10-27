@@ -429,7 +429,7 @@ static const global_keymap_ini_t default_viewer_keymap[] = {
     {"Quit", "f3; f10; q; esc"},
     {"HexMode", "f4"},
     {"Goto", "f5"},
-    {"Search", "f7; question; slash"},
+    {"Search", "f7"},
     {"SearchContinue", "ctrl-r; ctrl-s; f17; n"},
     {"MagicMode", "f8"},
     {"NroffMode", "f9"},
@@ -456,6 +456,8 @@ static const global_keymap_ini_t default_viewer_keymap[] = {
 #endif
     {"Shell", "ctrl-o"},
     {"Ruler", "alt-r"},
+    {"SearchForward", "slash"},
+    {"SearchBackward", "question"},
     {NULL, NULL}
 };
 
@@ -467,7 +469,7 @@ static const global_keymap_ini_t default_viewer_hex_keymap[] = {
     {"HexMode", "f4"},
     {"Goto", "f5"},
     {"Save", "f6"},
-    {"Search", "f7; question; slash"},
+    {"Search", "f7"},
     {"SearchContinue", "ctrl-r; ctrl-s; f17; n"},
     {"MagicMode", "f8"},
     {"NroffMode", "f9"},
@@ -486,6 +488,8 @@ static const global_keymap_ini_t default_viewer_hex_keymap[] = {
     {"SelectCodepage", "alt-e"},
 #endif
     {"Shell", "ctrl-o"},
+    {"SearchForward", "slash"},
+    {"SearchBackward", "question"},
     {NULL, NULL}
 };
 

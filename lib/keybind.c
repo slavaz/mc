@@ -316,6 +316,8 @@ static name_keymap_t command_names[] = {
     {"NroffMode", CK_NroffMode},
     {"BookmarkGoto", CK_BookmarkGoto},
     {"Ruler", CK_Ruler},
+    {"SearchForward", CK_SearchForward},
+    {"SearchBackward", CK_SearchBackward},
 
 #ifdef USE_DIFF_VIEW
     /* diff viewer */
