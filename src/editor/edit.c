@@ -718,10 +718,10 @@ edit_get_prev_utf (WEdit * edit, long byte_index, int *char_width)
     cursor_buf_ptr = utf8_buf + (2 * UTF8_CHAR_LEN);
     str = g_utf8_find_prev_char (utf8_buf, cursor_buf_ptr);
 
-    if (str == NULL || g_utf8_next_char(str) != cursor_buf_ptr)
+    if (str == NULL || g_utf8_next_char (str) != cursor_buf_ptr)
     {
         *char_width = 1;
-        return *(cursor_buf_ptr-1);
+        return *(cursor_buf_ptr - 1);
     }
     else
     {
@@ -730,7 +730,7 @@ edit_get_prev_utf (WEdit * edit, long byte_index, int *char_width)
         if (res < 0)
         {
             *char_width = 1;
-            return *(cursor_buf_ptr-1);
+            return *(cursor_buf_ptr - 1);
         }
         else
         {
@@ -4355,12 +4355,12 @@ edit_move_down (WEdit * edit, unsigned long i, int do_scroll)
 unsigned int
 edit_unlock_file (WEdit * edit)
 {
-    char *fullpath;
+    vfs_path_t *fullpath;
     unsigned int ret;
 
-    fullpath = mc_build_filename (edit->dir, edit->filename, (char *) NULL);
+    fullpath = vfs_path_build_filename (edit->dir, edit->filename, (char *) NULL);
     ret = unlock_file (fullpath);
-    g_free (fullpath);
+    vfs_path_free (fullpath);
 
     return ret;
 }
@@ -4370,12 +4370,12 @@ edit_unlock_file (WEdit * edit)
 unsigned int
 edit_lock_file (WEdit * edit)
 {
-    char *fullpath;
+    vfs_path_t *fullpath;
     unsigned int ret;
 
-    fullpath = mc_build_filename (edit->dir, edit->filename, (char *) NULL);
+    fullpath = vfs_path_build_filename (edit->dir, edit->filename, (char *) NULL);
     ret = lock_file (fullpath);
-    g_free (fullpath);
+    vfs_path_free (fullpath);
 
     return ret;
 }
