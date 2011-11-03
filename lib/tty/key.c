@@ -79,6 +79,9 @@
 
 /*** global variables ****************************************************************************/
 
+int copypaste_speed = 50;
+gboolean used_copypaste = FALSE;
+int previous_pressed_char = 0;
 int mou_auto_repeat = 100;
 int double_click_speed = 250;
 int old_esc_mode = 0;
@@ -1881,6 +1884,7 @@ tty_get_event (struct Gpm_Event *event, gboolean redo_event, gboolean block)
     struct timeval time_out;
     struct timeval *time_addr = NULL;
     static int dirty = 3;
+    static struct timeval lastkeytime = { -1, -1 };
 
     if ((dirty == 3) || is_idle ())
     {
@@ -2004,7 +2008,18 @@ tty_get_event (struct Gpm_Event *event, gboolean redo_event, gboolean block)
     untouchwin (stdscr);
 #endif /* !HAVE_SLANG */
     c = block ? getch_with_delay () : get_key_code (1);
+    used_copypaste = FALSE;
+    if (previous_pressed_char != c)
+    {
+        struct timeval currt;
 
+        GET_TIME (currt);
+        if (lastkeytime.tv_sec && (DIF_TIME (lastkeytime, currt) < copypaste_speed))
+            used_copypaste = TRUE;
+        lastkeytime.tv_usec = currt.tv_usec;
+        lastkeytime.tv_sec = currt.tv_sec;
+        previous_pressed_char = c;
+    }
 #ifndef HAVE_SLANG
     if (flag > 0)
         tty_touch_screen ();
