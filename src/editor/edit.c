@@ -3777,7 +3777,7 @@ edit_execute_cmd (WEdit * edit, unsigned long command, int char_for_insertion)
         else
         {
             edit_insert (edit, '\n');
-            if (option_return_does_auto_indent)
+            if (option_return_does_auto_indent && !used_copypaste)
             {
                 edit_auto_indent (edit);
             }
