@@ -941,7 +941,7 @@ edit_save_block_to_clip_file (WEdit * edit, long start, long finish)
 {
     int ret;
     gchar *tmp;
-    tmp = concat_dir_and_file (mc_config_get_cache_path (), EDIT_CLIP_FILE);
+    tmp = mc_build_filename (mc_config_get_cache_path (), EDIT_CLIP_FILE, NULL);
     ret = edit_save_block (edit, tmp, start, finish);
     g_free (tmp);
     return ret;
@@ -2765,7 +2765,7 @@ edit_save_block_cmd (WEdit * edit)
     if (eval_marks (edit, &start_mark, &end_mark))
         return 1;
 
-    tmp = concat_dir_and_file (mc_config_get_cache_path (), EDIT_CLIP_FILE);
+    tmp = mc_build_filename (mc_config_get_cache_path (), EDIT_CLIP_FILE, NULL);
     exp =
         input_expand_dialog (_("Save block"), _("Enter file name:"),
                              MC_HISTORY_EDIT_SAVE_BLOCK, tmp);
@@ -2807,7 +2807,7 @@ edit_insert_file_cmd (WEdit * edit)
     char *tmp;
     char *exp_tmp;
 
-    tmp = concat_dir_and_file (mc_config_get_cache_path (), EDIT_CLIP_FILE);
+    tmp = mc_build_filename (mc_config_get_cache_path (), EDIT_CLIP_FILE, NULL);
     exp_tmp = input_expand_dialog (_("Insert file"), _("Enter file name:"),
                                    MC_HISTORY_EDIT_INSERT_FILE, tmp);
     g_free (tmp);
@@ -2859,7 +2859,7 @@ edit_sort_cmd (WEdit * edit)
         return 0;
     }
 
-    tmp = concat_dir_and_file (mc_config_get_cache_path (), EDIT_BLOCK_FILE);
+    tmp = mc_build_filename (mc_config_get_cache_path (), EDIT_BLOCK_FILE, NULL);
     edit_save_block (edit, tmp, start_mark, end_mark);
     g_free (tmp);
 

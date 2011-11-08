@@ -820,7 +820,7 @@ expand_format (struct WEdit *edit_widget, char c, gboolean do_quote)
 #ifdef USE_INTERNAL_EDIT
             if (edit_widget)
             {
-                char *file = concat_dir_and_file (mc_config_get_cache_path (), EDIT_BLOCK_FILE);
+                char *file = mc_build_filename (mc_config_get_cache_path (), EDIT_BLOCK_FILE, NULL);
                 g_free (fname);
                 fname = (*quote_func) (file, 0);
                 g_free (file);
@@ -938,28 +938,29 @@ user_menu_cmd (struct WEdit * edit_widget, const char *menu_file, int selected_e
 
         g_free (menu);
         if (edit_widget)
-            menu = concat_dir_and_file (mc_config_get_data_path (), EDIT_HOME_MENU);
+            menu = mc_build_filename (mc_config_get_data_path (), EDIT_HOME_MENU, NULL);
         else
-            menu = g_build_filename (mc_config_get_data_path (), MC_USERMENU_FILE, NULL);
+            menu = mc_build_filename (mc_config_get_data_path (), MC_USERMENU_FILE, NULL);
 
 
         if (!exist_file (menu))
         {
             g_free (menu);
             menu =
-                concat_dir_and_file (mc_config_get_home_dir (),
-                                     edit_widget ? EDIT_GLOBAL_MENU : MC_GLOBAL_MENU);
+                mc_build_filename (mc_config_get_home_dir (),
+                                   edit_widget ? EDIT_GLOBAL_MENU : MC_GLOBAL_MENU, NULL);
             if (!exist_file (menu))
             {
                 g_free (menu);
                 menu =
-                    concat_dir_and_file (mc_global.sysconfig_dir,
-                                         edit_widget ? EDIT_GLOBAL_MENU : MC_GLOBAL_MENU);
+                    mc_build_filename (mc_global.sysconfig_dir,
+                                       edit_widget ? EDIT_GLOBAL_MENU : MC_GLOBAL_MENU, NULL);
                 if (!exist_file (menu))
                 {
                     g_free (menu);
-                    menu = concat_dir_and_file
-                        (mc_global.share_data_dir, edit_widget ? EDIT_GLOBAL_MENU : MC_GLOBAL_MENU);
+                    menu = mc_build_filename
+                        (mc_global.share_data_dir, edit_widget ? EDIT_GLOBAL_MENU : MC_GLOBAL_MENU,
+                         NULL);
                 }
             }
         }

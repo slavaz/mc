@@ -104,7 +104,7 @@ my_mkdir_rec (char *s, mode_t mode)
         return -1;
     }
 
-    p = concat_dir_and_file (s, "..");
+    p = mc_build_filename (s, "..", NULL);
     {
         vfs_path_t *vpath = vfs_path_from_str (p);
         q = vfs_path_to_str (vpath);

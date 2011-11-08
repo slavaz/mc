@@ -621,8 +621,7 @@ load_keymap_from_section (const char *section_name, GArray * keymap, mc_config_t
     {
         gchar **values, **curr_values;
 
-        curr_values = values =
-            mc_config_get_string_list (cfg, section_name, *profile_keys, &len);
+        curr_values = values = mc_config_get_string_list (cfg, section_name, *profile_keys, &len);
 
         if (curr_values != NULL)
         {
@@ -801,7 +800,7 @@ setup_init (void)
     profile = g_build_filename (mc_config_get_path (), MC_CONFIG_FILE, NULL);
     if (!exist_file (profile))
     {
-        inifile = concat_dir_and_file (mc_global.sysconfig_dir, "mc.ini");
+        inifile = mc_build_filename (mc_global.sysconfig_dir, "mc.ini", NULL);
         if (exist_file (inifile))
         {
             g_free (profile);
@@ -810,7 +809,7 @@ setup_init (void)
         else
         {
             g_free (inifile);
-            inifile = concat_dir_and_file (mc_global.share_data_dir, "mc.ini");
+            inifile = mc_build_filename (mc_global.share_data_dir, "mc.ini", NULL);
             if (exist_file (inifile))
             {
                 g_free (profile);

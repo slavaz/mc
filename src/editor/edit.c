@@ -1840,7 +1840,7 @@ user_menu (WEdit * edit, const char *menu_file, int selected_entry)
     struct stat status;
     vfs_path_t *block_file_vpath;
 
-    block_file = concat_dir_and_file (mc_config_get_cache_path (), EDIT_BLOCK_FILE);
+    block_file = mc_build_filename (mc_config_get_cache_path (), EDIT_BLOCK_FILE, NULL);
     block_file_vpath = vfs_path_from_str (block_file);
     curs = edit->curs1;
     nomark = eval_marks (edit, &start_mark, &end_mark);
