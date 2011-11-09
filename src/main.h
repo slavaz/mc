@@ -6,6 +6,7 @@
 #define MC__MAIN_H
 
 #include "lib/global.h"
+#include "lib/vfs/vfs.h"
 
 /*** typedefs(not structures) and defined constants **********************************************/
 
@@ -88,7 +89,7 @@ extern GArray *macros_list;
 int load_prompt (int fd, void *unused);
 #endif
 
-int do_cd (const char *new_dir, enum cd_enum cd_type);
+int do_cd (const vfs_path_t * new_dir_vpath, enum cd_enum cd_type);
 void update_xterm_title_path (void);
 
 /*** inline functions ****************************************************************************/
