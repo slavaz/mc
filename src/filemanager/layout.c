@@ -804,7 +804,7 @@ set_display_type (int num, panel_view_mode_t type)
     unsigned int the_other = 0; /* Index to the other panel */
     const char *file_name = NULL;       /* For Quick view */
     Widget *new_widget = NULL, *old_widget = NULL;
-    panel_view_mode_t old_type;
+    panel_view_mode_t old_type = view_listing;
     WPanel *the_other_panel = NULL;
 
     if (num >= MAX_VIEWS)
