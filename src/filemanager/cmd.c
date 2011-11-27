@@ -1671,17 +1671,18 @@ dirsizes_cmd (void)
 void
 save_setup_cmd (void)
 {
-    char *d1;
-    const char *d2;
+    vfs_path_t *vpath;
+    char *path;
 
-    d1 = g_build_filename (mc_config_get_path (), MC_CONFIG_FILE, (char *) NULL);
-    d2 = strip_home_and_password (d1);
-    g_free (d1);
+    vpath = vfs_path_build_filename (mc_config_get_path (), MC_CONFIG_FILE, (char *) NULL);
+    path = vfs_path_to_str_flags (vpath, 0, VPF_STRIP_HOME);
+    vfs_path_free (vpath);
 
     if (save_setup (TRUE, TRUE))
-        message (D_NORMAL, _("Setup"), _("Setup saved to %s"), d2);
+        message (D_NORMAL, _("Setup"), _("Setup saved to %s"), path);
     else
-        message (D_ERROR, _("Setup"), _("Unable to save setup to %s"), d2);
+        message (D_ERROR, _("Setup"), _("Unable to save setup to %s"), path);
+    g_free (path);
 }
 
 /* --------------------------------------------------------------------------------------------- */
