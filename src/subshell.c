@@ -274,7 +274,7 @@ init_subshell_child (const char *pty_name)
         if (access (init_file, R_OK) == -1)
         {
             g_free (init_file);
-            init_file = g_strdup (".bashrc");
+            init_file = g_strdup ("~/.bashrc");
         }
 
         /* Make MC's special commands not show up in bash's history */
