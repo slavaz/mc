@@ -49,6 +49,8 @@
 #define FISH_APPEND_FILE        "append"
 #define FISH_INFO_FILE          "info"
 
+#define SFTP_HOSTLIST_FILE      "hostlist.ini"
+
 #define MC_EXTFS_DIR            "extfs.d"
 
 #define MC_BASHRC_FILE          "bashrc"

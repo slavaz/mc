@@ -47,7 +47,7 @@
 #include <libssh2_sftp.h>
 
 #include "lib/global.h"
-
+#include "lib/widget/wtools.h"
 #include "lib/util.h"
 #include "lib/tty/tty.h"        /* tty_enable_interrupt_key () */
 #include "lib/mcconfig.h"
@@ -57,7 +57,9 @@
 #include "lib/vfs/xdirentry.h"
 #include "lib/vfs/gc.h"         /* vfs_stamp_create */
 #include "lib/event.h"
+#include "lib/fileloc.h"
 
+#include "hostlist.h"
 #include "sftpfs.h"
 #include "dialogs.h"
 
@@ -69,7 +71,7 @@ char *sftpfs_pubkey = NULL;
 char *sftpfs_user = NULL;
 char *sftpfs_host = NULL;
 int sftpfs_port = 22;
-int sftpfs_auth_method;
+int sftpfs_auth_method = 0;
 gboolean sftpfs_newcon = TRUE;
 
 /*** file scope macro definitions ****************************************************************/
@@ -1007,7 +1009,6 @@ sftpfs_open_socket (struct vfs_s_super *super)
         vfs_print_message (_("sftp: Invalid port value."));
         return -1;
     }
-
     tty_enable_interrupt_key ();        /* clear the interrupt flag */
 
     memset (&hints, 0, sizeof (struct addrinfo));
@@ -1042,7 +1043,6 @@ sftpfs_open_socket (struct vfs_s_super *super)
     for (curr_res = res; curr_res != NULL; curr_res = curr_res->ai_next)
     {
         my_socket = socket (curr_res->ai_family, curr_res->ai_socktype, curr_res->ai_protocol);
-
         if (my_socket < 0)
         {
             if (curr_res->ai_next != NULL)
@@ -1059,7 +1059,6 @@ sftpfs_open_socket (struct vfs_s_super *super)
 
         if (connect (my_socket, curr_res->ai_addr, curr_res->ai_addrlen) >= 0)
             break;
-
         sftpfs_errno_int = errno;
         close (my_socket);
 
@@ -1109,7 +1108,6 @@ sftpfs_do_connect (struct vfs_class *me, struct vfs_s_super *super)
     /* ... start it up. This will trade welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
      */
-
     rc = libssh2_session_startup (SUP->session, SUP->socket_handle);
     if (rc != 0)
     {
@@ -1126,7 +1124,6 @@ sftpfs_do_connect (struct vfs_class *me, struct vfs_s_super *super)
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list (SUP->session, super->path_element->user,
                                           strlen (super->path_element->user));
-
     if (sftpfs_auth_method == SFTP_AUTH_AUTO)
     {
         if (strstr (userauthlist, "password") != NULL)
@@ -1145,7 +1142,6 @@ sftpfs_do_connect (struct vfs_class *me, struct vfs_s_super *super)
             SUP->auth_pw = 8;
 
     }
-
     if (super->path_element->password == NULL && (SUP->auth_pw < 8))
     {
         char *p;
@@ -1260,73 +1256,68 @@ sftpfs_open_archive (struct vfs_s_super *super,
                      const vfs_path_t * vpath, const vfs_path_element_t * vpath_element)
 {
     char *sec = NULL;
-
+    int result;
     (void) vpath;
 
     if (vpath_element->host == NULL || *vpath_element->host == '\0')
     {
-        vfs_print_message (_("sftp: Invalid host name."));
-        vpath_element->class->verrno = EPERM;
-        return 0;
-    }
+        char *res;
 
-    super->data = g_new0 (sftpfs_super_data_t, 1);
-    super->path_element = vfs_path_element_clone (vpath_element);
-
-    if (super->path_element->user == NULL)
-    {
-        super->path_element->user = vfs_get_local_username ();
-        if (super->path_element->user == NULL)
+        res = hostlist_show ();
+        if (res == NULL)
+            return -1;
+        else
         {
-            vfs_path_element_free (super->path_element);
-            super->path_element = NULL;
-            g_free (super->data);
-            vpath_element->class->verrno = EPERM;
-            return 0;
+            super->data = g_new0 (sftpfs_super_data_t, 1);
+            sftpfs_load_param (res);
+            g_free (res);
+
+            if (sftpfs_host != NULL)
+                ((vfs_path_element_t *) vpath_element)->host = g_strdup (sftpfs_host);
+            else
+            {
+                vfs_print_message (_("sftp: Invalid host name."));
+                return -1;
+            }
+
+            if (sftpfs_user != NULL)
+                ((vfs_path_element_t *) vpath_element)->user = g_strdup (sftpfs_user);
+            else
+                ((vfs_path_element_t *) vpath_element)->user = g_strdup (vfs_get_local_username ());
+            ((vfs_path_element_t *) vpath_element)->port = sftpfs_port;
+
+            super->path_element = vfs_path_element_clone (vpath_element);
         }
     }
-
-    sec = g_strdup_printf ("%s://%s@%s", vfs_sftpfs_ops.prefix,
-                           super->path_element->user, super->path_element->host);
-
-    sftpfs_load_param (sec);
-
-    if (sftpfs_newcon)
+    else
     {
-        sftpfs_user = g_strdup (super->path_element->user);
-        sftpfs_host = g_strdup (super->path_element->host);
-        if (super->path_element->port > 0)
-            sftpfs_port = super->path_element->port;
 
-        configure_sftpfs_conn (sec);
+        super->data = g_new0 (sftpfs_super_data_t, 1);
+        super->path_element = vfs_path_element_clone (vpath_element);
+
+        sec = g_strdup_printf ("%s@%s", super->path_element->user, super->path_element->host);
+        sftpfs_load_param (sec);
+        g_free (sec);
+        g_free (super->path_element->user);
+        g_free (super->path_element->host);
+
+        super->path_element->user = g_strdup (sftpfs_user);
+        super->path_element->host = g_strdup (sftpfs_host);
+        super->path_element->port = sftpfs_port ;
+
+        if (super->path_element->port == 0)
+            super->path_element->port = SFTP_DEFAULT_PORT;
     }
-
-    g_free (sec);
-    g_free (super->path_element->user);
-    g_free (super->path_element->host);
-
-    g_free (vpath_element->host);
-    ((vfs_path_element_t *) vpath_element)->host = g_strdup (sftpfs_host);
-
-    g_free (vpath_element->user);
-    ((vfs_path_element_t *) vpath_element)->user = g_strdup (sftpfs_user);
-
-    ((vfs_path_element_t *) vpath_element)->port = sftpfs_port;
-
-    super->path_element->user = g_strdup (sftpfs_user);
-    super->path_element->host = g_strdup (sftpfs_host);
-    super->path_element->port = sftpfs_port ;
-
-    if (super->path_element->port == 0)
-        super->path_element->port = SFTP_DEFAULT_PORT;
-
-    SUP->auth_pw = 1;
     super->name = g_strdup (PATH_SEP_STR);
     super->root =
         vfs_s_new_inode (vpath_element->class, super,
                          vfs_s_default_stat (vpath_element->class, S_IFDIR | 0755));
 
-    return sftpfs_do_connect (vpath_element->class, super);
+    result = sftpfs_do_connect (vpath_element->class, super);
+    if (result < 0)
+        (void) query_dialog (_("sftpfs"), _("Error!"), D_ERROR, 1, _("&OK"));
+    return result;
+
 }
 
 /* --------------------------------------------------------------------------------------------- */
@@ -1335,6 +1326,8 @@ static void
 sftpfs_free_archive (struct vfs_class *me, struct vfs_s_super *super)
 {
     (void) me;
+    if (SUP == NULL)
+        return;
 
     if (SUP->sftp_session != NULL)
         libssh2_sftp_shutdown (SUP->sftp_session);
@@ -1438,7 +1431,7 @@ sftpfs_load_param (const char *section_name)
     char *buffer;
     mc_config_t *sftpfs_config;
 
-    profile = g_build_filename (mc_config_get_path (), "hotlist.ini", NULL);
+    profile = g_build_filename (mc_config_get_path (), SFTP_HOSTLIST_FILE, NULL);
     sftpfs_config = mc_config_init (profile);
     g_free (profile);
 
@@ -1465,6 +1458,11 @@ sftpfs_load_param (const char *section_name)
         sftpfs_user = g_strdup (buffer);
     g_free (buffer);
 
+    buffer = mc_config_get_string (sftpfs_config, section_name, "host", "");
+    if (buffer != NULL && buffer[0] != '\0')
+        sftpfs_host = g_strdup (buffer);
+    g_free (buffer);
+
     sftpfs_port = mc_config_get_int (sftpfs_config, section_name, "port", SFTP_DEFAULT_PORT);
     mc_config_deinit (sftpfs_config);
 }
@@ -1477,7 +1475,7 @@ sftpfs_save_param (const char *section_name)
     char *profile;
     mc_config_t *sftpfs_config;
 
-    profile = g_build_filename (mc_config_get_path (), "hotlist.ini", NULL);
+    profile = g_build_filename (mc_config_get_path (), SFTP_HOSTLIST_FILE, NULL);
     sftpfs_config = mc_config_init (profile);
     g_free (profile);
 

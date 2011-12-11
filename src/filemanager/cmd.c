@@ -1458,8 +1458,7 @@ ftplink_cmd (void)
 void
 sftplink_cmd (void)
 {
-    nice_cd (_("SFTP to machine"), _(machine_str),
-             "[SFTP File System]", ":sftplink_cmd: SFTP to machine ", "/#sftp:", 1);
+    (void) do_panel_cd (MENU_PANEL, "sftp://", cd_parse_command);
 }
 #endif /* ENABLE_VFS_FTP */
 

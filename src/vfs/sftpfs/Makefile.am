@@ -4,4 +4,5 @@ AM_CPPFLAGS =
 noinst_LTLIBRARIES = libvfs-sftpfs.la
 
 libvfs_sftpfs_la_SOURCES = \
+	hostlist.c hostlist.h \
 	dialogs.c dialogs.h sftpfs.c sftpfs.h
