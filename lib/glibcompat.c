@@ -76,3 +76,15 @@ g_file_set_contents (const gchar * filename, const gchar * contents, gssize leng
     return g_file_replace (filename, contents, length, error);
 }
 #endif /* ! GLIB_CHECK_VERSION (2, 7, 0) */
+
+/* --------------------------------------------------------------------------------------------- */
+
+#if ! GLIB_CHECK_VERSION (2, 14, 0)
+void
+g_string_append_vprintf (GString * str, const char *fmt, ...)
+{
+    gchar *tmp = g_strdup_vprintf (fmt, ap);
+    g_string_append (sftpfs_error_string, tmp);
+    g_free (tmp);
+}
+#endif /* ! GLIB_CHECK_VERSION (2, 14, 0) */
