@@ -1543,6 +1543,17 @@ ftplink_cmd (void)
 
 /* --------------------------------------------------------------------------------------------- */
 
+#ifdef ENABLE_VFS_SFTP
+void
+sftplink_cmd (void)
+{
+    nice_cd (_("SFTP to machine"), _(machine_str),
+             "[SFTP File System]", ":sftplink_cmd: SFTP to machine ", "/#sftp:", 1);
+}
+#endif /* ENABLE_VFS_FTP */
+
+/* --------------------------------------------------------------------------------------------- */
+
 #ifdef ENABLE_VFS_FISH
 void
 fishlink_cmd (void)
