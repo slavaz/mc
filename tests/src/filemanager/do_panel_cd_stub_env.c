@@ -42,7 +42,7 @@ command_new (int y, int x, int cols)
                      INPUT_COMPLETE_SHELL_ESC);
 
     /* Add our hooks */
-    cmd->widget.callback = NULL;
+    WIDGET (cmd)->callback = NULL;
 
     return cmd;
 }
