@@ -3417,7 +3417,7 @@ edit_select_codepage_cmd (WEdit * edit)
         edit_set_codeset (edit);
 
     edit->force = REDRAW_PAGE;
-    send_message (WIDGET (edit), WIDGET_DRAW, 0);
+    send_message (WIDGET (edit), NULL, WIDGET_DRAW, 0, NULL);
 }
 #endif
 
