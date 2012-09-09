@@ -972,6 +972,18 @@ input_event (Gpm_Event * event, void *data)
 }
 
 /* --------------------------------------------------------------------------------------------- */
+
+static void
+input_set_options (Widget *w, widget_options_t options, gboolean enable)
+{
+    WInput *in = (WInput *) w;
+
+    widget_default_set_options (w, options, enable);
+    if (in->label != NULL)
+        widget_set_options (WIDGET (in->label), options, enable);
+}
+
+/* --------------------------------------------------------------------------------------------- */
 /*** public functions ****************************************************************************/
 /* --------------------------------------------------------------------------------------------- */
 
@@ -996,6 +1008,7 @@ input_new (int y, int x, const int *input_colors, int width, const char *def_tex
     w = WIDGET (in);
     init_widget (w, y, x, 1, width, input_callback, input_event);
     w->options |= W_IS_INPUT;
+    w->set_options = input_set_options;
 
     memmove (in->color, input_colors, sizeof (input_colors_t));
 
@@ -1027,8 +1040,9 @@ input_new (int y, int x, const int *input_colors, int width, const char *def_tex
     in->history_name = NULL;
     if ((histname != NULL) && (*histname != '\0'))
         in->history_name = g_strdup (histname);
-
     /* history will be loaded later */
+
+    in->label = NULL;
 
     return in;
 }
