@@ -973,12 +973,19 @@ input_event (Gpm_Event * event, void *data)
 
 /* --------------------------------------------------------------------------------------------- */
 
+/**
+ * Callback for applying new options to input widget.
+ *
+ * @param w       widget
+ * @param options options set
+ * @param enable  TRUE if specified options should be added, FALSE if options should be removed
+ */
 static void
-input_set_options (Widget *w, widget_options_t options, gboolean enable)
+input_set_options_callback (Widget *w, widget_options_t options, gboolean enable)
 {
     WInput *in = (WInput *) w;
 
-    widget_default_set_options (w, options, enable);
+    widget_default_set_options_callback (w, options, enable);
     if (in->label != NULL)
         widget_set_options (WIDGET (in->label), options, enable);
 }
@@ -1008,7 +1015,7 @@ input_new (int y, int x, const int *input_colors, int width, const char *def_tex
     w = WIDGET (in);
     init_widget (w, y, x, 1, width, input_callback, input_event);
     w->options |= W_IS_INPUT;
-    w->set_options = input_set_options;
+    w->set_options = input_set_options_callback;
 
     memmove (in->color, input_colors, sizeof (input_colors_t));
 
