@@ -147,7 +147,7 @@ init_widget (Widget * w, int y, int x, int lines, int cols,
     w->lines = lines;
     w->callback = callback;
     w->mouse = mouse_handler;
-    w->set_options = widget_default_set_options;
+    w->set_options = widget_default_set_options_callback;
     w->owner = NULL;
 
     /* Almost all widgets want to put the cursor in a suitable place */
@@ -182,8 +182,15 @@ default_widget_callback (Widget * sender, widget_msg_t msg, int parm, void *data
 
 /* --------------------------------------------------------------------------------------------- */
 
+/**
+ * Callback for applying new options to common widget.
+ *
+ * @param w       widget
+ * @param options options set
+ * @param enable  TRUE if specified options should be added, FALSE if options should be removed
+ */
 void
-widget_default_set_options (Widget *w, widget_options_t options, gboolean enable)
+widget_default_set_options_callback (Widget *w, widget_options_t options, gboolean enable)
 {
     if (enable)
         w->options |= options;
@@ -196,6 +203,13 @@ widget_default_set_options (Widget *w, widget_options_t options, gboolean enable
 
 /* --------------------------------------------------------------------------------------------- */
 
+/**
+ * Applying new options to common widget.
+ *
+ * @param w       widget
+ * @param options options set
+ * @param enable  TRUE if specified options should be added, FALSE if options should be removed
+ */
 void
 widget_set_options (Widget *w, widget_options_t options, gboolean enable)
 {
