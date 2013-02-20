@@ -579,8 +579,6 @@ src/vfs/local/Makefile
 
 src/vfs/sfs/Makefile
 
-src/vfs/smbfs/Makefile
-
 src/vfs/tar/Makefile
 
 src/vfs/undelfs/Makefile
