@@ -1,4 +1,4 @@
-SUBDIRS = . editor filemanager
+SUBDIRS = . editor filemanager vfs
 
 AM_CPPFLAGS = \
 	$(GLIB_CFLAGS) \
